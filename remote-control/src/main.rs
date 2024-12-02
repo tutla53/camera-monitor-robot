@@ -4,6 +4,7 @@
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_time::Timer;
+use embassy_stm32::usart::{Config, Uart};
 use embassy_stm32::peripherals::ADC1;
 use embassy_stm32::gpio::{Level, Output, Pull, Speed};
 use embassy_stm32::time::khz;
@@ -11,12 +12,15 @@ use embassy_stm32::timer::input_capture::{CapturePin, InputCapture};
 use embassy_stm32::timer::{self, Channel};
 use embassy_stm32::{adc, bind_interrupts, peripherals};
 use embassy_stm32::adc::Adc;
+use embassy_stm32::usart;
 use {defmt_rtt as _, panic_probe as _};
 
 bind_interrupts!(struct Irqs {
     ADC1_2 => adc::InterruptHandler<ADC1>;
     TIM2 => timer::CaptureCompareInterruptHandler<peripherals::TIM2>;
+    USART1 => usart::InterruptHandler<peripherals::USART1>;
 });
+
 
 #[embassy_executor::task]
 async fn blinky(led: peripherals::PC13) {
@@ -25,11 +29,11 @@ async fn blinky(led: peripherals::PC13) {
     loop {
         info!("high");
         led.set_high();
-        Timer::after_millis(100).await;
+        Timer::after_millis(50).await;
 
         info!("low");
         led.set_low();
-        Timer::after_millis(100).await;
+        Timer::after_millis(50).await;
     }
 }
 
@@ -74,7 +78,7 @@ async fn read_adc(adc_pin: peripherals::ADC1, mut pin: peripherals::PB1) {
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
-    info!("Hello World!");
+    let mut uart = Uart::new(p.USART1, p.PA10, p.PA9, Irqs, p.DMA1_CH4, p.DMA1_CH5,  Config::default()).unwrap();
 
     unwrap!(spawner.spawn(blinky(p.PC13)));
     unwrap!(spawner.spawn(blinky_2(p.PC12)));
@@ -82,6 +86,8 @@ async fn main(spawner: Spawner) {
 
     let ch3 = CapturePin::new_ch3(p.PA2, Pull::None);
     let mut ic = InputCapture::new(p.TIM2, None, None, Some(ch3), None, Irqs, khz(1000), Default::default());
+    
+    uart.write(b"A").await.unwrap();
 
     loop {
         info!("wait for rising edge");
