@@ -29,11 +29,11 @@ async fn blinky(led: peripherals::PC13) {
     loop {
         info!("high");
         led.set_high();
-        Timer::after_millis(50).await;
+        Timer::after_millis(1000).await;
 
         info!("low");
         led.set_low();
-        Timer::after_millis(50).await;
+        Timer::after_millis(1000).await;
     }
 }
 
@@ -85,15 +85,11 @@ async fn main(spawner: Spawner) {
     unwrap!(spawner.spawn(read_adc(p.ADC1, p.PB1)));
 
     let ch3 = CapturePin::new_ch3(p.PA2, Pull::None);
-    let mut ic = InputCapture::new(p.TIM2, None, None, Some(ch3), None, Irqs, khz(1000), Default::default());
-    
-    uart.write(b"A").await.unwrap();
+    let _ic = InputCapture::new(p.TIM2, None, None, Some(ch3), None, Irqs, khz(1000), Default::default());
 
     loop {
-        info!("wait for rising edge");
-        ic.wait_for_rising_edge(Channel::Ch3).await;
-
-        let capture_value = ic.get_capture_value(Channel::Ch3);
-        info!("new capture! {}", capture_value);
+        uart.write(b"A").await.unwrap();
+        uart.write(b"\n").await.unwrap();
+        Timer::after_millis(250).await;
     }
 }
