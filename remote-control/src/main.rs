@@ -95,11 +95,11 @@ async fn uart_task(r: UartResources, u: AdcResources) {
     let mut value:u8 = 0;
 
     loop {
-        core::write!(&mut msg, "{}\n", value).unwrap();
+        core::writeln!(&mut msg, "{}", value).unwrap();
         uart.write(msg.as_bytes()).await.unwrap();
         uart.flush().await.unwrap();
         
-        if(value == 255){value = 0;}
+        if value == 255 {value = 0;}
         else {value = value + 1};
         msg.clear();
     }
