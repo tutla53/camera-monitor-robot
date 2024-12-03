@@ -1,26 +1,24 @@
 #![no_std]
 #![no_main]
 
+mod resources;
+use crate::resources::gpio_list::{
+    AssignedResources,
+    UartResources,
+    AdcResources,
+    Irqs,
+};
+
+use heapless::String;
+use core::fmt::Write;
 use defmt::*;
 use embassy_executor::Spawner;
 use embassy_time::Timer;
 use embassy_stm32::usart::{Config, Uart};
-use embassy_stm32::peripherals::ADC1;
-use embassy_stm32::gpio::{Level, Output, Pull, Speed};
-use embassy_stm32::time::khz;
-use embassy_stm32::timer::input_capture::{CapturePin, InputCapture};
-use embassy_stm32::timer::{self, Channel};
-use embassy_stm32::{adc, bind_interrupts, peripherals};
+use embassy_stm32::gpio::{Level, Output, Speed};
+use embassy_stm32::peripherals;
 use embassy_stm32::adc::Adc;
-use embassy_stm32::usart;
 use {defmt_rtt as _, panic_probe as _};
-
-bind_interrupts!(struct Irqs {
-    ADC1_2 => adc::InterruptHandler<ADC1>;
-    TIM2 => timer::CaptureCompareInterruptHandler<peripherals::TIM2>;
-    USART1 => usart::InterruptHandler<peripherals::USART1>;
-});
-
 
 #[embassy_executor::task]
 async fn blinky(led: peripherals::PC13) {
@@ -74,22 +72,44 @@ async fn read_adc(adc_pin: peripherals::ADC1, mut pin: peripherals::PB1) {
     }
 }
 
+#[embassy_executor::task]
+async fn uart_task(r: UartResources, u: AdcResources) {
+
+    let mut adc = Adc::new(u.ADC_PERIPHERALS);
+    let mut base_pin = u.ADC_BASE_PIN;
+    let mut head_pin = u.ADC_HEAD_PIN;
+
+    let mut vrefint = adc.enable_vref();
+
+    let mut config = Config::default();
+    config.baudrate = 9600;   
+    let mut uart = Uart::new(r.UART_PERIPHERALS, 
+                            r.RX_PIN, 
+                            r.TX_PIN, 
+                            Irqs, 
+                            r.TX_DMA, 
+                            r.RX_DMA,  
+                            config).unwrap(); 
+    
+    let mut msg: String<8> = String::new();
+    let mut value:u8 = 0;
+
+    loop {
+        core::write!(&mut msg, "{}\n", value).unwrap();
+        uart.write(msg.as_bytes()).await.unwrap();
+        uart.flush().await.unwrap();
+        
+        if(value == 255){value = 0;}
+        else {value = value + 1};
+        msg.clear();
+    }
+}
+
 
 #[embassy_executor::main]
 async fn main(spawner: Spawner) {
     let p = embassy_stm32::init(Default::default());
-    let mut uart = Uart::new(p.USART1, p.PA10, p.PA9, Irqs, p.DMA1_CH4, p.DMA1_CH5,  Config::default()).unwrap();
-
-    unwrap!(spawner.spawn(blinky(p.PC13)));
-    unwrap!(spawner.spawn(blinky_2(p.PC12)));
-    unwrap!(spawner.spawn(read_adc(p.ADC1, p.PB1)));
-
-    let ch3 = CapturePin::new_ch3(p.PA2, Pull::None);
-    let _ic = InputCapture::new(p.TIM2, None, None, Some(ch3), None, Irqs, khz(1000), Default::default());
-
-    loop {
-        uart.write(b"A").await.unwrap();
-        uart.write(b"\n").await.unwrap();
-        Timer::after_millis(250).await;
-    }
+    let r = split_resources!(p);
+    spawner.spawn(uart_task(r.uart_resources, r.adc_resources)).unwrap();
+    
 }

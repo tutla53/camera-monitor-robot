@@ -19,6 +19,8 @@ embassy-futures = { version = "0.1.0", path = "../embassy/embassy-futures" }
 defmt = "0.3"
 defmt-rtt = "0.4"
 
+assign-resources = { git = "https://github.com/adamgreig/assign-resources", rev = "94ad10e2729afdf0fd5a77cd12e68409a982f58a" }
+
 cortex-m = { version = "0.7.6", features = ["inline-asm", "critical-section-single-core"] }
 cortex-m-rt = "0.7.0"
 embedded-hal = "0.2.6"
