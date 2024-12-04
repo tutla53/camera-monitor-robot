@@ -5,32 +5,34 @@
 
 use {
     assign_resources::assign_resources,
-    embassy_stm32::{
-        peripherals,
+    embassy_rp::{
         bind_interrupts,
+        peripherals,
+        pio::InterruptHandler as PioInterruptHandler,
+        usb::InterruptHandler as UsbInterruptHandler,
         adc::InterruptHandler as AdcInterruptHandler,
-        usart::InterruptHandler as UsartInterruptHandler,
     },
 };
 
 assign_resources! {
-    adc_resources: AdcResources {
-        ADC_PERIPHERALS: ADC1,
-        ADC_BASE_PIN: PA0,
-        ADC_HEAD_PIN: PA1,
+    led_resources: LedFadeResources {
+        PIO_CH: PIO0,
+        LED_PIN: PIN_25,
     },
 
-    uart_resources: UartResources {
-        UART_PERIPHERALS: USART1,
-        RX_PIN: PA10,
-        RX_DMA: DMA1_CH5,
-        TX_PIN: PA9,
-        TX_DMA: DMA1_CH4,
+    control_resources: ControlResources {
+        ADC_PERIPHERAL: ADC,
+        ADC_HEAD_PIN: PIN_26,
+        ADC_BODY_PIN: PIN_27,
+        UART_PIO_CH: PIO1,
+        UART_TX_PIN: PIN_4,
     },
 }
 
 bind_interrupts!(pub struct Irqs {
-    ADC1_2 => AdcInterruptHandler<peripherals::ADC1>;
-    USART1 => UsartInterruptHandler<peripherals::USART1>;
+    PIO0_IRQ_0 => PioInterruptHandler<peripherals::PIO0>;
+    PIO1_IRQ_0 => PioInterruptHandler<peripherals::PIO1>;
+    USBCTRL_IRQ => UsbInterruptHandler<peripherals::USB>;
+    ADC_IRQ_FIFO => AdcInterruptHandler;
 });
 
