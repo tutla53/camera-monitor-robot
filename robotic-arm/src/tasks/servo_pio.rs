@@ -56,17 +56,15 @@ pub async fn servo_pio(r: ServoPioResources) {
     Timer::after_secs(1).await;
     body_servo.start();
     head_servo.start();
-    body_servo.rotate(0);
-    head_servo.rotate(0);
+    body_servo.rotate(90);
+    head_servo.rotate(90);
 
     let mut head_degree: i16 = 0;
     let mut body_degree: i16 = 0;
     let inc: i16 = 1;
 
     loop {
-        let n = uart_rx.read_u8().await;
-
-        match n {
+        match uart_rx.read_u8().await {
             b'w' => {head_degree = head_degree + inc;},
             b's' => {head_degree = head_degree - inc;},
             b'a' => {body_degree = body_degree + inc;},
@@ -82,7 +80,5 @@ pub async fn servo_pio(r: ServoPioResources) {
 
         body_servo.rotate(body_degree as u64);
         head_servo.rotate(head_degree as u64);
-
-        Timer::after_micros(100).await;
     }
 }

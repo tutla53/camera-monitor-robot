@@ -8,7 +8,7 @@ use {
     },
     {defmt_rtt as _, panic_probe as _},
 };
- 
+
 const DEFAULT_MIN_PULSE_WIDTH: u64 = 1000; // uncalibrated default, the shortest duty cycle sent to a servo
 const DEFAULT_MAX_PULSE_WIDTH: u64 = 2000; // uncalibrated default, the longest duty cycle sent to a servo
 const DEFAULT_MAX_DEGREE_ROTATION: u64 = 180; // 180 degrees is typical
