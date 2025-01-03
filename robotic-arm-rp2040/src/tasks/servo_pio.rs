@@ -2,7 +2,7 @@
 
 use {
     core::time::Duration,
-    crate::builder::servo_pio_builder::ServoPioBuilder,
+    rp2040_servo_pio::ServoPioBuilder,
     crate::resources::gpio_list::{
         Irqs,
         ServoPioResources,
@@ -42,6 +42,7 @@ pub async fn servo_pio(r: ServoPioResources) {
         .set_max_degree_rotation(180)
         .set_min_pulse_width(Duration::from_micros(1000))
         .set_max_pulse_width(Duration::from_micros(2000))
+        .set_initial_position(90)
         .build();
 
     let mut head_servo = ServoPioBuilder::new(head_pwm_pio)
@@ -49,15 +50,12 @@ pub async fn servo_pio(r: ServoPioResources) {
         .set_max_degree_rotation(180)
         .set_min_pulse_width(Duration::from_micros(1000))
         .set_max_pulse_width(Duration::from_micros(2000))
+        .set_initial_position(90)
         .build();
 
-    body_servo.stop();
-    head_servo.stop();
-    Timer::after_secs(1).await;
     body_servo.start();
     head_servo.start();
-    body_servo.rotate(90);
-    head_servo.rotate(90);
+    Timer::after_secs(1).await;
 
     let mut head_degree: i16 = 0;
     let mut body_degree: i16 = 0;
