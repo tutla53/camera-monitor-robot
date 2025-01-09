@@ -8,14 +8,15 @@ mod tasks;
 
 use {
     crate::tasks::{
-        fade::fade,
-        servo_pio::servo_pio,
+        servo_pio::{body_servo_task, head_servo_task},
+        uart_task::uart_task,
     },
     crate::resources::gpio_list::{
         Irqs,
         AssignedResources, 
-        LedFadeResources, 
-        ServoPioResources, 
+        HeadServoResources, 
+        BodyServoResources, 
+        UartResources,
     },
     embassy_executor::Spawner,
     embassy_rp::{
@@ -23,6 +24,7 @@ use {
         usb::Driver,
         peripherals::USB,
     },
+    defmt::*,
     {defmt_rtt as _, panic_probe as _},
 };
 
@@ -38,7 +40,8 @@ async fn main(spawner: Spawner){
 
     let r = split_resources!(p);
 
-    spawner.spawn(logger_task(driver)).unwrap();
-    spawner.spawn(fade(r.led_resources)).unwrap();
-    spawner.spawn(servo_pio(r.servo_pio_resources)).unwrap();
+    unwrap!(spawner.spawn(logger_task(driver)));
+    unwrap!(spawner.spawn(uart_task(r.uart_resources)));
+    unwrap!(spawner.spawn(head_servo_task(r.head_servo_resources)));
+    unwrap!(spawner.spawn(body_servo_task(r.body_servo_resources)));
 }
