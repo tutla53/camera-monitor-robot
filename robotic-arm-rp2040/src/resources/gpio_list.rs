@@ -10,26 +10,32 @@ use {
         peripherals,
         pio::InterruptHandler as PioInterruptHandler,
         usb::InterruptHandler as UsbInterruptHandler,
+        uart::InterruptHandler as UartInterruptHandler,
     },
 };
 
 assign_resources! {
-    led_resources: LedFadeResources {
-        PIO_CH: PIO0,
-        LED_PIN: PIN_25,
+    head_servo_resources: HeadServoResources {
+        HEAD_SERVO_PIO_CH: PIO0,
+        HEAD_SERVO_PIN: PIN_12,
     },
 
-    servo_pio_resources: ServoPioResources {
-        SERVO_PIO_CH: PIO1,
-        SERVO_BODY_PIN: PIN_10,
-        SERVO_HEAD_PIN: PIN_12,
+    body_servo_resources: BodyServoResources {
+        BODY_SERVO_PIO_CH: PIO1,
+        BODY_SERVO_PIN: PIN_10,
+    },
+
+    uart_resources: UartResources{
+        UART_CH: UART1,
         UART_RX_PIN: PIN_5,
+        UART_DMA_CH: DMA_CH1, 
     },
 }
 
 bind_interrupts!(pub struct Irqs {
     PIO0_IRQ_0 => PioInterruptHandler<peripherals::PIO0>;
     PIO1_IRQ_0 => PioInterruptHandler<peripherals::PIO1>;
+    UART1_IRQ => UartInterruptHandler<peripherals::UART1>;
     USBCTRL_IRQ => UsbInterruptHandler<peripherals::USB>;
 });
 
