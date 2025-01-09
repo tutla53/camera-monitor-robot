@@ -10,6 +10,7 @@ use {
     crate::tasks::{
         servo_pio::{body_servo_task, head_servo_task},
         uart_task::uart_task,
+        button::{body_button_task, head_button_task},
     },
     crate::resources::gpio_list::{
         Irqs,
@@ -17,6 +18,8 @@ use {
         HeadServoResources, 
         BodyServoResources, 
         UartResources,
+        BodyButtonResources,
+        HeadButtonResources,
     },
     embassy_executor::Spawner,
     embassy_rp::{
@@ -41,7 +44,10 @@ async fn main(spawner: Spawner){
     let r = split_resources!(p);
 
     unwrap!(spawner.spawn(logger_task(driver)));
-    unwrap!(spawner.spawn(uart_task(r.uart_resources)));
     unwrap!(spawner.spawn(head_servo_task(r.head_servo_resources)));
     unwrap!(spawner.spawn(body_servo_task(r.body_servo_resources)));
+    
+    unwrap!(spawner.spawn(uart_task(r.uart_resources)));
+    unwrap!(spawner.spawn(body_button_task(r.body_button_resources)));
+    unwrap!(spawner.spawn(head_button_task(r.head_button_resources)));
 }

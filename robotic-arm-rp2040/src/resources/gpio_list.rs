@@ -30,6 +30,16 @@ assign_resources! {
         UART_RX_PIN: PIN_5,
         UART_DMA_CH: DMA_CH1, 
     },
+
+    head_button_resources: HeadButtonResources{
+        UP_PIN: PIN_20,
+        DOWN_PIN: PIN_21,
+    },
+
+    body_button_resources: BodyButtonResources{
+        LEFT_PIN: PIN_18,
+        RIGHT_PIN: PIN_19,
+    },
 }
 
 bind_interrupts!(pub struct Irqs {
