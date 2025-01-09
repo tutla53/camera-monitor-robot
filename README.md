@@ -19,6 +19,8 @@ This is my first project to use Rust + embassy-rs for microcontroller.
         ├── mod.rs
         ├── servo_pio.rs
         └── uart_task.rs
+
+4 directories, 11 files
 ```
 
 ## Hardware Components
