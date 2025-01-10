@@ -24,6 +24,8 @@ This is my first project to use Rust + embassy-rs for microcontroller.
 ```
 
 ## Hardware Components
+This is the main component of this project:
+
 |Component               | Description |
 |------------------------|-------------|
 |Raspberry Pi Pico RP2040| I use this because embassy-rs have many examples for Pico and also Pico W |
@@ -34,7 +36,7 @@ This is my first project to use Rust + embassy-rs for microcontroller.
 |CD4050BE|Logic shifter to drive the PWM from 3.3V to 5V and convert RC Module output from 5V to 3.3V|
 
 ## Resources Map
-Detailed resources list can be found in th `resources/gpio_list.rs`
+Detailed resources list can be found in the `resources/gpio_list.rs`
 
 ### GPIO Map
 
