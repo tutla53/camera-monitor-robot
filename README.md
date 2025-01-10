@@ -59,5 +59,10 @@ Detailed resources list can be found in the `resources/gpio_list.rs`
 |UART1|Handle the HC-05 UART Communication|
 |DMA_CH1|Handle the HC-05 UART Communication|
 
+## Circuit Diagram
+
+## Task Schematic
+
+
 
 
