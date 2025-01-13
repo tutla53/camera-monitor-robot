@@ -2,7 +2,7 @@
 Very simple 2 D.O.F camera monitor robot with two servo motors. 
 This is my first project to use Rust + embassy-rs for microcontroller.
 
-![Alt text](img/camera-robot.jpeg)
+![Alt text](img/camera-robot.JPG)
 
 ## Project Structure
 ```bash
