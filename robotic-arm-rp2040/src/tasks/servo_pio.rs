@@ -53,9 +53,9 @@ pub async fn body_servo_task(r: BodyServoResources) {
     let mut body_servo = ServoBuilder::new(body_pwm_device)
         .set_servo_freq(50)
         .set_max_degree_rotation(180)
-        .set_min_pulse_width(690)
-        .set_max_pulse_width(2620)
-        .set_initial_position(BODY_SERVO_INIT_POS)
+        .set_min_duty(1800)
+        .set_max_duty(6600)
+        .set_initial_position(0)
         .build();
 
     body_servo.enable();
@@ -97,9 +97,9 @@ pub async fn head_servo_task(r: HeadServoResources) {
     let mut head_servo = ServoBuilder::new(head_pwm_device)
         .set_servo_freq(50)
         .set_max_degree_rotation(180)
-        .set_min_pulse_width(690)
-        .set_max_pulse_width(2620)
-        .set_initial_position(HEAD_SERVO_INIT_POS)
+        .set_min_duty(1800)
+        .set_max_duty(6600)
+        .set_initial_position(0)
         .build();
 
     head_servo.enable();
