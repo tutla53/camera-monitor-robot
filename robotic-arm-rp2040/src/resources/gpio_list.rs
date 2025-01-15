@@ -8,7 +8,6 @@ use {
     embassy_rp::{
         bind_interrupts,
         peripherals,
-        pio::InterruptHandler as PioInterruptHandler,
         usb::InterruptHandler as UsbInterruptHandler,
         uart::InterruptHandler as UartInterruptHandler,
     },
@@ -16,12 +15,12 @@ use {
 
 assign_resources! {
     head_servo_resources: HeadServoResources {
-        HEAD_SERVO_PIO_CH: PIO0,
+        HEAD_SERVO_SLICE: PWM_SLICE6,
         HEAD_SERVO_PIN: PIN_12,
     },
 
     body_servo_resources: BodyServoResources {
-        BODY_SERVO_PIO_CH: PIO1,
+        BODY_SERVO_SLICE: PWM_SLICE5,
         BODY_SERVO_PIN: PIN_10,
     },
 
@@ -43,8 +42,6 @@ assign_resources! {
 }
 
 bind_interrupts!(pub struct Irqs {
-    PIO0_IRQ_0 => PioInterruptHandler<peripherals::PIO0>;
-    PIO1_IRQ_0 => PioInterruptHandler<peripherals::PIO1>;
     UART1_IRQ => UartInterruptHandler<peripherals::UART1>;
     USBCTRL_IRQ => UsbInterruptHandler<peripherals::USB>;
 });

@@ -18,7 +18,7 @@ embassy-futures = { git = "https://github.com/embassy-rs/embassy" }
 embassy-usb-logger = { git = "https://github.com/embassy-rs/embassy" }
 
 # Servo Builder Library
-rp2040-servo-pio = {git = "https://github.com/tutla53/embassy-rp-library.git"}
+rp2040-servo = {git = "https://github.com/tutla53/rp2040-servo-pwm"}
 
 defmt = "0.3"
 defmt-rtt = "0.4"

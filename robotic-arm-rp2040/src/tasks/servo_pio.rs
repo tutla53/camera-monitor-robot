@@ -1,18 +1,13 @@
 //! Servo PIO Task with state machine 0 and 1 
 
 use {
-    core::time::Duration,
-    rp2040_servo_pio::ServoPioBuilder,
+    rp2040_servo::ServoBuilder,
     crate::resources::gpio_list::{
-        Irqs,
         HeadServoResources,
         BodyServoResources,
     },
     embassy_rp::{
-        pio::Pio,
-        pio_programs::{
-            pwm::{PioPwm, PioPwmProgram},
-        },
+        pwm::{Config as PwmConfig, Pwm},
     },
     embassy_sync::{
         signal::Signal,
@@ -22,9 +17,8 @@ use {
     {defmt_rtt as _, panic_probe as _},
 };
 
-const REFRESH_INTERVAL: u64 = 20000;
-const BODY_SERVO_INIT_POS: u64 = 90;
-const HEAD_SERVO_INIT_POS: u64 = 90;
+const BODY_SERVO_INIT_POS: u16 = 90;
+const HEAD_SERVO_INIT_POS: u16 = 90;
 
 static BODY_CONTROL: Signal<CriticalSectionRawMutex, BodyCommand> = Signal::new();
 static HEAD_CONTROL: Signal<CriticalSectionRawMutex, HeadCommand> = Signal::new();
@@ -50,20 +44,22 @@ async fn wait_head_command() -> HeadCommand {
 
 #[embassy_executor::task]
 pub async fn body_servo_task(r: BodyServoResources) {
-    let Pio { mut common, sm0, .. } = Pio::new(r.BODY_SERVO_PIO_CH, Irqs);
-    let prg = PioPwmProgram::new(&mut common);
-
-    let body_pwm_pio = PioPwm::new(&mut common, sm0, r.BODY_SERVO_PIN, &prg);
+    let body_pwm_device = Pwm::new_output_a(
+        r.BODY_SERVO_SLICE, 
+        r.BODY_SERVO_PIN, 
+        PwmConfig::default()
+    );
     
-    let mut body_servo = ServoPioBuilder::new(body_pwm_pio)
-        .set_period(Duration::from_micros(REFRESH_INTERVAL))
+    let mut body_servo = ServoBuilder::new(body_pwm_device)
+        .set_servo_freq(50)
         .set_max_degree_rotation(180)
-        .set_min_pulse_width(Duration::from_micros(1000))
-        .set_max_pulse_width(Duration::from_micros(2000))
+        .set_min_pulse_width(690)
+        .set_max_pulse_width(2620)
         .set_initial_position(BODY_SERVO_INIT_POS)
         .build();
 
-    body_servo.start();
+    body_servo.enable();
+    body_servo.rotate(BODY_SERVO_INIT_POS);
     Timer::after_secs(1).await;
 
     let mut body_degree: i16 = body_servo.get_current_pos() as i16;
@@ -86,27 +82,29 @@ pub async fn body_servo_task(r: BodyServoResources) {
 
         log::info!("Body Pos: {}", body_servo.get_current_pos());
 
-        body_servo.rotate(body_degree as u64);
+        body_servo.rotate(body_degree as u16);
     }
 }
 
 #[embassy_executor::task]
 pub async fn head_servo_task(r: HeadServoResources) {
-    let Pio { mut common, sm0, .. } = Pio::new(r.HEAD_SERVO_PIO_CH, Irqs);
-    let prg = PioPwmProgram::new(&mut common);
-
-    let head_pwm_pio = PioPwm::new(&mut common, sm0, r.HEAD_SERVO_PIN, &prg);
+    let head_pwm_device = Pwm::new_output_a(
+        r.HEAD_SERVO_SLICE, 
+        r.HEAD_SERVO_PIN, 
+        PwmConfig::default()
+    );
     
-    let mut head_servo = ServoPioBuilder::new(head_pwm_pio)
-        .set_period(Duration::from_micros(REFRESH_INTERVAL))
+    let mut head_servo = ServoBuilder::new(head_pwm_device)
+        .set_servo_freq(50)
         .set_max_degree_rotation(180)
-        .set_min_pulse_width(Duration::from_micros(1000))
-        .set_max_pulse_width(Duration::from_micros(2000))
+        .set_min_pulse_width(690)
+        .set_max_pulse_width(2620)
         .set_initial_position(HEAD_SERVO_INIT_POS)
         .build();
 
-    head_servo.start();
+    head_servo.enable();
     Timer::after_secs(1).await;
+    head_servo.rotate(HEAD_SERVO_INIT_POS);
 
     let mut head_degree: i16 = head_servo.get_current_pos() as i16;
     let head_inc: i16 = 1;
@@ -128,6 +126,6 @@ pub async fn head_servo_task(r: HeadServoResources) {
 
         log::info!("Head Pos: {}", head_servo.get_current_pos());
 
-        head_servo.rotate(head_degree as u64);
+        head_servo.rotate(head_degree as u16);
     }
 }
