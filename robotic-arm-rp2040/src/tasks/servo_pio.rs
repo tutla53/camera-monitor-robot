@@ -17,8 +17,8 @@ use {
     {defmt_rtt as _, panic_probe as _},
 };
 
-const BODY_SERVO_INIT_POS: u16 = 90;
-const HEAD_SERVO_INIT_POS: u16 = 90;
+const BODY_SERVO_INIT_POS: u32 = 90;
+const HEAD_SERVO_INIT_POS: u32 = 90;
 
 static BODY_CONTROL: Signal<CriticalSectionRawMutex, BodyCommand> = Signal::new();
 static HEAD_CONTROL: Signal<CriticalSectionRawMutex, HeadCommand> = Signal::new();
@@ -53,13 +53,12 @@ pub async fn body_servo_task(r: BodyServoResources) {
     let mut body_servo = ServoBuilder::new(body_pwm_device)
         .set_servo_freq(50)
         .set_max_degree_rotation(180)
-        .set_min_duty(1800)
-        .set_max_duty(6600)
-        .set_initial_position(0)
+        .set_min_duty(2100)
+        .set_max_duty(8200)
+        .set_initial_position(BODY_SERVO_INIT_POS)
         .build();
 
     body_servo.enable();
-    body_servo.rotate(BODY_SERVO_INIT_POS);
     Timer::after_secs(1).await;
 
     let mut body_degree: i16 = body_servo.get_current_pos() as i16;
@@ -82,7 +81,7 @@ pub async fn body_servo_task(r: BodyServoResources) {
 
         log::info!("Body Pos: {}", body_servo.get_current_pos());
 
-        body_servo.rotate(body_degree as u16);
+        body_servo.rotate(body_degree as u32);
     }
 }
 
@@ -97,15 +96,14 @@ pub async fn head_servo_task(r: HeadServoResources) {
     let mut head_servo = ServoBuilder::new(head_pwm_device)
         .set_servo_freq(50)
         .set_max_degree_rotation(180)
-        .set_min_duty(1800)
-        .set_max_duty(6600)
-        .set_initial_position(0)
+        .set_min_duty(2100)
+        .set_max_duty(8200)
+        .set_initial_position(HEAD_SERVO_INIT_POS)
         .build();
 
     head_servo.enable();
     Timer::after_secs(1).await;
-    head_servo.rotate(HEAD_SERVO_INIT_POS);
-
+    
     let mut head_degree: i16 = head_servo.get_current_pos() as i16;
     let head_inc: i16 = 1;
 
@@ -126,6 +124,6 @@ pub async fn head_servo_task(r: HeadServoResources) {
 
         log::info!("Head Pos: {}", head_servo.get_current_pos());
 
-        head_servo.rotate(head_degree as u16);
+        head_servo.rotate(head_degree as u32);
     }
 }
