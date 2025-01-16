@@ -7,6 +7,7 @@ This is my first project to use Rust + embassy-rs for microcontroller.
 </p>
 
 ## Project Structure
+Please change to branch `servo_pwm` to see the servo motor with PWM driver. The GPIO is the same for both PIO and PWM Driver version.
 ```bash
 .
 ├── Cargo.lock
@@ -37,7 +38,7 @@ This is the main component of this project:
 |MG996R + Bracket|Servo Motor for yaw and pitch camera movement. Controlled by varying the PWM duty cycles via PIO. I have developed my own library for this project on [rp2040-servo-pio](https://github.com/tutla53/embassy-rp-library) |
 |HC-05 Bluetooth         |Bluetooth module to drive the servo motor. The remote control is using my existing remote control by using STM32F1 Bluepill and FreeRTOS on [remote-control-stm32](https://github.com/tutla53/remote-control-stm32) |
 |IC2262/2272 RC Module   |RC transmitter and receiver module with 433 MHz variant. The output of this module is 5V, so we need the logic shifter to connect to Pico|
-|CD4050BE|Logic shifter to drive the PWM from 3.3V to 5V and convert RC Module output from 5V to 3.3V|
+|CD4050BE or BSS138|Logic level converter to drive the PWM from 3.3V to 5V and convert RC Module output from 5V to 3.3V|
 
 ## Resources Map
 Detailed resources list can be found in the `resources/gpio_list.rs`
