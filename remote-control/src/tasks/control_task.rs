@@ -45,8 +45,8 @@ pub async fn control_task(r: ControlResources) {
         if head_val > 3500 { uart_tx.write("w".as_bytes()).await.unwrap(); }
         else if head_val < 500{ uart_tx.write("s".as_bytes()).await.unwrap(); }
 
-        if body_val > 3500 { uart_tx.write("a".as_bytes()).await.unwrap(); }
-        else if body_val < 500{ uart_tx.write("d".as_bytes()).await.unwrap(); }
+        if body_val > 3500 { uart_tx.write("d".as_bytes()).await.unwrap(); }
+        else if body_val < 500{ uart_tx.write("a".as_bytes()).await.unwrap(); }
 
         Timer::after_millis(200).await;
     }
