@@ -6,22 +6,15 @@ use {
         ControlResources,
     },
     embassy_rp::{
-        gpio::Pull,
+        gpio::{Input, Output, Pull, Level},
         pio::Pio,
         pio_programs::{
-            uart::{
-                PioUartTx,
-                PioUartTxProgram,
-            },
+            uart::{PioUartTx, PioUartTxProgram},
         },
-        adc::{
-            Adc, 
-            Config,
-            Channel,
-        },
+        adc::{Adc, Config, Channel},
     },
     embedded_io_async::Write,
-    embassy_time::Timer,
+    embassy_time::{Timer, Instant, Duration, with_deadline},
     {defmt_rtt as _, panic_probe as _},
 };
 
@@ -29,6 +22,8 @@ use {
 pub async fn control_task(r: ControlResources) {
     let Pio { mut common, sm0, .. } = Pio::new(r.UART_PIO_CH, Irqs);
     let mut adc = Adc::new(r.ADC_PERIPHERAL, Irqs, Config::default());
+    let mut wake_btn = Input::new(r.WAKE_BUTTON, Pull::Down);
+    let mut hc_power = Output::new(r.HC_POWER, Level::Low);
 
     let mut head_pin = Channel::new_pin(r.ADC_HEAD_PIN, Pull::None);
     let mut body_pin = Channel::new_pin(r.ADC_BODY_PIN, Pull::None);
@@ -36,18 +31,54 @@ pub async fn control_task(r: ControlResources) {
     let tx_program = PioUartTxProgram::new(&mut common);
     let mut uart_tx = PioUartTx::new(9600, &mut common, sm0, r.UART_TX_PIN, &tx_program);
 
-    Timer::after_secs(2).await;
+    let timeout_s = 5;
+    let task_timeout_s = 300;
+    let timeout = Duration::from_secs(timeout_s);
+
+    Timer::after_secs(1).await;
 
     loop {
-        let head_val = adc.read(&mut head_pin).await.unwrap();
-        let body_val = adc.read(&mut body_pin).await.unwrap();
+        let now = Instant::now();
+        let deadline = now + timeout;
+        
+        let wake_status = match with_deadline(deadline, wake_btn.wait_for_rising_edge()).await {
+            Ok(_) => {
+                log::info!("Button Triggered");
+                hc_power.set_high();
+                true
+            }
 
-        if head_val > 3500 { uart_tx.write("w".as_bytes()).await.unwrap(); }
-        else if head_val < 500{ uart_tx.write("s".as_bytes()).await.unwrap(); }
+            Err(_) => {
+                log::info!("Timeout after {} s", timeout_s);
+                Timer::after_secs(1).await;
+                hc_power.set_low();
+                false
+            }
+        };
+        
+        if wake_status == true {
+            let task_start = Instant::now();
+            let task_timeout = Duration::from_secs(task_timeout_s);
+            let task_deadline = task_start + task_timeout;
 
-        if body_val > 3500 { uart_tx.write("d".as_bytes()).await.unwrap(); }
-        else if body_val < 500{ uart_tx.write("a".as_bytes()).await.unwrap(); }
+            loop{
+                if Instant::now() >= task_deadline {
+                    log::info!("Stopping Control Task");
+                    break;
+                }
+                log::info!("Running Control Task");
 
-        Timer::after_millis(200).await;
+                let head_val = adc.read(&mut head_pin).await.unwrap();
+                let body_val = adc.read(&mut body_pin).await.unwrap();
+
+                if head_val > 3500 { uart_tx.write("w".as_bytes()).await.unwrap(); }
+                else if head_val < 500{ uart_tx.write("s".as_bytes()).await.unwrap(); }
+
+                if body_val > 3500 { uart_tx.write("d".as_bytes()).await.unwrap(); }
+                else if body_val < 500{ uart_tx.write("a".as_bytes()).await.unwrap(); }
+
+                Timer::after_millis(300).await;
+            }
+        }
     }
 }

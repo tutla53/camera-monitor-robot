@@ -15,23 +15,19 @@ use {
 };
 
 assign_resources! {
-    led_resources: LedFadeResources {
-        PIO_CH: PIO0,
-        LED_PIN: PIN_25,
-    },
-
     control_resources: ControlResources {
         ADC_PERIPHERAL: ADC,
         ADC_HEAD_PIN: PIN_26,
         ADC_BODY_PIN: PIN_27,
-        UART_PIO_CH: PIO1,
+        HC_POWER: PIN_1,
+        WAKE_BUTTON: PIN_8,
         UART_TX_PIN: PIN_4,
+        UART_PIO_CH: PIO0,
     },
 }
 
 bind_interrupts!(pub struct Irqs {
     PIO0_IRQ_0 => PioInterruptHandler<peripherals::PIO0>;
-    PIO1_IRQ_0 => PioInterruptHandler<peripherals::PIO1>;
     USBCTRL_IRQ => UsbInterruptHandler<peripherals::USB>;
     ADC_IRQ_FIFO => AdcInterruptHandler;
 });
