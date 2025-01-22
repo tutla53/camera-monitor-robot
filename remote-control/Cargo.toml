@@ -20,6 +20,10 @@ embassy-usb-logger = { git = "https://github.com/embassy-rs/embassy" }
 # Servo Builder Library
 rp2040-servo-pio = {git = "https://github.com/tutla53/embassy-rp-library.git"}
 
+# OLED Display SSD1306 128x64
+ssd1306 = { version = "0.9.0", features = ["graphics"] }
+itoa = { version = "1.0.11", features = ["no-panic"] }
+
 defmt = "0.3"
 defmt-rtt = "0.4"
 fixed = "1.23.1"
