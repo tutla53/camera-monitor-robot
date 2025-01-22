@@ -9,10 +9,12 @@ mod tasks;
 use {
     crate::tasks::{
         control_task::control_task,
+        display::display,
     },
     crate::resources::gpio_list::{
         AssignedResources, 
         ControlResources, 
+        DisplayResources,
         Irqs,
     },
     embassy_executor::Spawner,
@@ -37,5 +39,6 @@ async fn main(spawner: Spawner){
     let r = split_resources!(p);
     
     unwrap!(spawner.spawn(logger_task(driver)));
+    unwrap!(spawner.spawn(display(r.display_resources)));   
     unwrap!(spawner.spawn(control_task(r.control_resources)));
 }
