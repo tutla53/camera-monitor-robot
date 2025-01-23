@@ -19,6 +19,7 @@ use {
             UartRx,
         },
     },
+    embassy_time::Timer,
     {defmt_rtt as _, panic_probe as _},
 };
 
@@ -42,5 +43,6 @@ pub async fn uart_task(r: UartResources) {
             },
             Err(e) => {log::info!("Error {:?}", e);}
         }           
+        Timer::after_millis(10).await;
     }
 }
