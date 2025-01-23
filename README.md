@@ -7,7 +7,58 @@ This is my first project to use Rust + embassy-rs for microcontroller.
 </p>
 
 ## Project Structure
-Please change to branch `servo_pwm` to see the servo motor with PWM driver. The GPIO is the same for both PIO and PWM Driver version.
+Please change to branch `pio_pwm` to see the servo motor with PIO PWM driver. The GPIO is the same for both PIO and PWM Driver version.
+In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code and `remote-control` for the remote control code.
+
+<table>
+  <tr> 
+    <th width = 250px> robotic-arm-rp2040 </th>
+    <th width = 250px> remote-control </th>
+  </tr>
+  <tr> 
+    <td class="top-aligned"> 
+<code style="vertical-align:top">.
+├── Cargo.lock
+├── Cargo.toml
+├── build.rs
+├── memory.x
+└── src
+    ├── main.rs
+    ├── resources
+    │   ├── gpio_list.rs
+    │   └── mod.rs
+    └── tasks
+        ├── button.rs
+        ├── mod.rs
+        ├── servo_pio.rs
+        └── uart_task.rs  
+<br>
+4 directories, 11 files
+</code>
+    </td> 
+    <td style="vertical-align:top"> 
+<code class = "language-bash">.
+├── Cargo.lock
+├── Cargo.toml
+├── README.md
+├── build.rs
+├── memory.x
+└── src
+    ├── main.rs
+    ├── resources
+    │   ├── gpio_list.rs
+    │   └── mod.rs
+    └── tasks
+        ├── button.rs
+        ├── control_task.rs
+        ├── display.rs
+        └── mod.rs
+4 directories, 12 files </code>
+    </td>
+  </tr>
+</table>
+
+### robotic-arm-rp2040
 ```bash
 .
 ├── Cargo.lock
@@ -27,47 +78,27 @@ Please change to branch `servo_pwm` to see the servo motor with PWM driver. The 
 
 4 directories, 11 files
 ```
+### remote-control
+```bash
+.
+├── Cargo.lock
+├── Cargo.toml
+├── README.md
+├── build.rs
+├── memory.x
+└── `src`
+    ├── main.rs
+    ├── `resources`
+    │   ├── gpio_list.rs
+    │   └── mod.rs
+    └── `tasks`
+        ├── button.rs
+        ├── control_task.rs
+        ├── display.rs
+        └── mod.rs
 
-## Hardware Components
-This is the main component of this project:
-
-|Component               | Description |
-|------------------------|-------------|
-|Raspberry Pi Pico RP2040| I use this because embassy-rs have many examples for Pico and also Pico W |
-|JIYUE Baby Monitor|Existing baby monitor camera. This is for quick development, maybe I will develop embedded camera later|
-|MG996R + Bracket|Servo Motor for yaw and pitch camera movement. Controlled by varying the PWM duty cycles via PIO. I have developed my own library for this project on [rp2040-servo-pio](https://github.com/tutla53/embassy-rp-library) |
-|HC-05 Bluetooth         |Bluetooth module to drive the servo motor. The remote control is using my existing remote control by using STM32F1 Bluepill and FreeRTOS on [remote-control-stm32](https://github.com/tutla53/remote-control-stm32) |
-|IC2262/2272 RC Module   |RC transmitter and receiver module with 433 MHz variant. The output of this module is 5V, so we need the logic shifter to connect to Pico|
-|CD4050BE or BSS138|Logic level converter to drive the PWM from 3.3V to 5V and convert RC Module output from 5V to 3.3V|
-
-## Resources Map
-Detailed resources list can be found in the `resources/gpio_list.rs`
-
-### GPIO Map
-
-|GPIO| Description|
-|---|---|
-|GP5|UART1 RX Pin connected to TX pin of HC-05 Bluetooth Module|
-|GP10|PWM Output to Drive Body Servo Motor|
-|GP12|PWM Output to Drive Head Servo Motor|
-|GP18|Left Signal Input from RC Module (Yaw move CCW)|
-|GP19|Right Signal Input from RC Module (Yaw move CW)|
-|GP20|Up Signal Input from RC Module (Pitch move CCW)|
-|GP21|Down Signal Input from RC Module (Pitch move CW)|
-
-### Pheriperal Map
-
-|Pheriperal| Description|
-|---|---|
-|PIO0|Driving Head Servo Motor|
-|PIO1|Driving Head Servo Motor|
-|UART1|Handle the HC-05 UART Communication|
-|DMA_CH1|Handle the HC-05 UART Communication|
-
-## Circuit Diagram
-
-## Task Schematic
-
+4 directories, 12 files
+```
 
 
 
