@@ -11,6 +11,7 @@ Please change to branch `pio_pwm` to see the servo motor with PIO PWM driver. Th
 
 In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code and `remote-control` for the remote control code.
 
+<div style="text-align:center">
 <table>
   <tr> 
     <th width = 250px> robotic-arm-rp2040 </th>
@@ -58,3 +59,4 @@ In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code 
     </td>
   </tr>
 </table>
+</div>
