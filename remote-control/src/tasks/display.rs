@@ -22,12 +22,14 @@ use {
         signal::Signal,
         blocking_mutex::raw::CriticalSectionRawMutex,
     },
+    embassy_time::Timer,
     core::fmt::Write,
 };
 
 static DISPLAY_CONTROL: Signal<CriticalSectionRawMutex, Command> = Signal::new();
 
 pub enum Command {
+    Brightness(bool),
     Status(usize),
 }
 
@@ -40,11 +42,11 @@ async fn wait_command() -> Command {
 }
 
 const ENCODE_CODE: [&str; 6] = [
-    "Sleep Mode\nPress the Button                   ", 
+    "Sleep Mode      Press the Button               ", 
     "Pairing...                                     ",
     "Pairing: Connected                             ",
     "Pairing: Failed                                ",
-    "Connected =)                                   ",
+    "Connected                                      ",
     "Sleep Mode                                     ",
 ];
 
@@ -66,14 +68,17 @@ pub async fn display(r: DisplayResources) {
     let _ = display.write_str("Baby Monitor");
     
     display.set_position(0, 3).unwrap();
-    let _ = display.write_str("Status: ");
+    let _ = display.write_str("Status:         ");
 
-    
     loop{
 
         let command = wait_command().await;
         
         match command {
+            Command::Brightness(value) => {
+                display.set_display_on(value).unwrap();
+                Timer::after_millis(200).await;
+            },
             Command::Status(value) => {
                 display.set_position(0, 4).unwrap();
                 let _ = display.write_str(ENCODE_CODE[value]);
