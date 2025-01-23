@@ -2,16 +2,12 @@
 Very simple 2 D.O.F camera monitor robot with two servo motors. 
 This is my first project to use Rust + embassy-rs for microcontroller.
 
-<p align="center">
-    <img src="img/camera-robot.JPG" width="500">
-</p>
-
 ## Project Structure
-Please change to branch `servo_pwm` to see the servo motor with PWM driver. The GPIO is the same for both PIO and PWM Driver version.
 ```bash
 .
 ├── Cargo.lock
 ├── Cargo.toml
+├── README.md
 ├── build.rs
 ├── memory.x
 └── `src`
@@ -21,11 +17,11 @@ Please change to branch `servo_pwm` to see the servo motor with PWM driver. The 
     │   └── mod.rs
     └── `tasks`
         ├── button.rs
-        ├── mod.rs
-        ├── servo_pio.rs
-        └── uart_task.rs
+        ├── control_task.rs
+        ├── display.rs
+        └── mod.rs
 
-4 directories, 11 files
+4 directories, 12 files
 ```
 
 ## Hardware Components
