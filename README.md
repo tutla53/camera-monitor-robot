@@ -20,7 +20,6 @@ In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code 
   <tr> 
     <td class="top-aligned"> 
 <code style="vertical-align:top">.
-├── Cargo.lock
 ├── Cargo.toml
 ├── build.rs
 ├── memory.x
@@ -40,9 +39,7 @@ In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code 
     </td> 
     <td style="vertical-align:top"> 
 <code class = "language-bash">.
-├── Cargo.lock
 ├── Cargo.toml
-├── README.md
 ├── build.rs
 ├── memory.x
 └── src
@@ -55,6 +52,7 @@ In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code 
         ├── control_task.rs
         ├── display.rs
         └── mod.rs
+<br>
 4 directories, 12 files </code>
     </td>
   </tr>
