@@ -40,6 +40,10 @@ async fn wait_command() -> Command {
     MAIN_CONTROL.wait().await
 }
 
+fn reset_main_control_queue() {
+    MAIN_CONTROL.reset();
+}
+
 #[embassy_executor::task]
 pub async fn control_task(r: ControlResources) {
     let Pio { mut common, sm0, .. } = Pio::new(r.UART_PIO_CH, Irqs);
@@ -60,6 +64,8 @@ pub async fn control_task(r: ControlResources) {
 
     loop {
         log::info!("Waiting for the Button...");
+        
+        reset_main_control_queue();
         send_display(DisplayCommand::Status(0));
 
         let _ = wait_command().await;
