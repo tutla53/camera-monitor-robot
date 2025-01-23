@@ -8,6 +8,7 @@ This is my first project to use Rust + embassy-rs for microcontroller.
 
 ## Project Structure
 Please change to branch `pio_pwm` to see the servo motor with PIO PWM driver. The GPIO is the same for both PIO and PWM Driver version.
+
 In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code and `remote-control` for the remote control code.
 
 <table>
