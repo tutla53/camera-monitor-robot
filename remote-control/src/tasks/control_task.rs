@@ -19,14 +19,32 @@ use {
     },
     embedded_io_async::Write,
     embassy_time::{Timer, Instant, Duration, with_deadline},
+    embassy_sync::{
+        signal::Signal,
+        blocking_mutex::raw::CriticalSectionRawMutex,
+    },
     {defmt_rtt as _, panic_probe as _},
 };
+
+static MAIN_CONTROL: Signal<CriticalSectionRawMutex, Command> = Signal::new();
+
+pub enum Command {
+    Start,
+}
+
+pub fn send_command(command: Command) {
+    MAIN_CONTROL.signal(command);
+}
+
+async fn wait_command() -> Command {
+    MAIN_CONTROL.wait().await
+}
 
 #[embassy_executor::task]
 pub async fn control_task(r: ControlResources) {
     let Pio { mut common, sm0, .. } = Pio::new(r.UART_PIO_CH, Irqs);
     let mut adc = Adc::new(r.ADC_PERIPHERAL, Irqs, Config::default());
-    let mut wake_btn = Input::new(r.WAKE_BUTTON, Pull::Down);
+    
     let mut hc_state_btn = Input::new(r.HC_STATE_PIN, Pull::Down);
     let mut hc_power = Output::new(r.HC_POWER, Level::Low);
 
@@ -43,7 +61,8 @@ pub async fn control_task(r: ControlResources) {
     loop {
         log::info!("Waiting for the Button...");
         send_display(DisplayCommand::Status(0));
-        wake_btn.wait_for_rising_edge().await;
+
+        let _ = wait_command().await;
 
         let task_timeout = Duration::from_secs(task_timeout_s);
         let mut task_start = Instant::now();
@@ -74,7 +93,7 @@ pub async fn control_task(r: ControlResources) {
 
         if hc_status {
             loop{
-                if Instant::now() >= task_deadline {
+                if Instant::now() >= task_deadline || hc_state_btn.is_low(){
                     hc_power.set_low();
                     log::info!("Stopping Control Task");
                     send_display(DisplayCommand::Status(5));
