@@ -22,7 +22,6 @@ assign_resources! {
         ADC_BODY_PIN: PIN_27,
         HC_POWER: PIN_2,
         HC_STATE_PIN: PIN_15,
-        WAKE_BUTTON: PIN_3,
         UART_TX_PIN: PIN_4,
         UART_PIO_CH: PIO0,
     },
@@ -31,6 +30,9 @@ assign_resources! {
         SCL_PIN: PIN_1,
         SDA_PIN: PIN_0,
     },
+    button_resources: ButtonResources{
+        MAIN_BUTTON: PIN_3,
+    }
 }
 
 bind_interrupts!(pub struct Irqs {
