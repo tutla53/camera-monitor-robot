@@ -11,14 +11,14 @@ Please change to branch `pio_pwm` to see the servo motor with PIO PWM driver. Th
 
 In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code and `remote-control` for the remote control code.
 
-<div style="text-align:center">
+<div align="center">
 <table>
   <tr> 
     <th width = 250px> robotic-arm-rp2040 </th>
     <th width = 250px> remote-control </th>
   </tr>
   <tr> 
-    <td class="top-aligned"> 
+    <td class="top-aligned" align="left"> 
 <code style="vertical-align:top">.
 ├── Cargo.toml
 ├── build.rs
@@ -37,7 +37,7 @@ In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code 
 4 directories, 11 files
 </code>
     </td> 
-    <td style="vertical-align:top"> 
+    <td style="vertical-align:top" align="left"> 
 <code class = "language-bash">.
 ├── Cargo.toml
 ├── build.rs
@@ -58,3 +58,7 @@ In this reposiroty we have two project: `robotic-arm-rp2040` for the robot code 
   </tr>
 </table>
 </div>
+
+## Getting Started
+
+
